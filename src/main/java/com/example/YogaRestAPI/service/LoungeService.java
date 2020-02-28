@@ -1,13 +1,16 @@
 package com.example.YogaRestAPI.service;
 
 import com.example.YogaRestAPI.domain.Lounge;
+import com.example.YogaRestAPI.errors.Lounge.LoungeExistsException;
 import com.example.YogaRestAPI.repos.LoungeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LoungeService {
@@ -23,45 +26,59 @@ public class LoungeService {
         return loungeRepo.findAll();
     }
 
-    public void save(Lounge lounge) {
-        loungeRepo.save(lounge);
+    public Page<Lounge> findAllPaginated(Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return loungeRepo.findAll(pageable);
+    }
+
+    public Lounge save(Lounge lounge) {
+        return loungeRepo.save(lounge);
     }
 
     public void deleteById(Long id) {
         loungeRepo.deleteById(id);
     }
 
-    public Lounge findById(Long id) {
-        return loungeRepo.findById(id).orElse(null);
+    public Optional<Lounge> findById(Long id) {
+        return loungeRepo.findById(id);
     }
 
-    private boolean checkLoungeExist(Lounge lounge) {
+    public void checkLoungeExist(Lounge lounge) {
         Lounge loungeFromDb = loungeRepo.findByName(lounge.getName());
-        return loungeFromDb != null;
+        if (loungeFromDb != null) {
+            throw new LoungeExistsException(lounge.getName());
+        }
     }
 
-    public Boolean createLoungeValidation(Lounge lounge, BindingResult bindingResult){
-        if (checkLoungeExist(lounge)) {
-            bindingResult.addError(new FieldError(
-                    "lounge",
-                    "name",
-                    "Lounge with name: " + lounge.getName() + " is exist!"));
-            return false;
+    public void update(Lounge lounge) {
+        Lounge loungeFromDb = loungeRepo.findByName(lounge.getName());
+        if (loungeFromDb != null && (!loungeFromDb.getId().equals(lounge.getId()))) {
+            throw new LoungeExistsException(lounge.getName());
         }
-        return true;
     }
 
-    public boolean updateLoungeValidation(Lounge lounge, BindingResult bindingResult) {
-        if(checkLoungeExist(lounge)){
-            Lounge loungeFromDb = loungeRepo.findByName(lounge.getName());
-            if (!loungeFromDb.getId().equals(lounge.getId())) {
-                bindingResult.addError(new FieldError(
-                        "lounge",
-                        "name",
-                        "Lounge with name: " + lounge.getName() + " is exist!"));
-                return false;
-            }
+    public Lounge patch(Lounge patch, Lounge target) {
+        if (patch.getName() != null) {
+            target.setName(patch.getName());
         }
-        return true;
+        if (patch.getAddress() != null) {
+            target.setAddress(patch.getAddress());
+        }
+        if (patch.getCapacity() != 0) {
+            target.setCapacity(patch.getCapacity());
+        }
+        if (patch.getStartTime() != null) {
+            target.setStartTime(patch.getStartTime());
+        }
+        if (patch.getFinishTime() != null) {
+            target.setFinishTime(patch.getFinishTime());
+        }
+        if (patch.getActivities() != null) {
+            target.setActivities(patch.getActivities());
+        }
+        if (patch.getActivityTypes() != null) {
+            target.setActivityTypes(patch.getActivityTypes());
+        }
+        return target;
     }
 }

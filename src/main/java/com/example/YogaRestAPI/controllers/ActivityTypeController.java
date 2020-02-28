@@ -1,25 +1,29 @@
 package com.example.YogaRestAPI.controllers;
 
+import com.example.YogaRestAPI.assemblers.ActivityTypeModelAssembler;
 import com.example.YogaRestAPI.domain.ActivityType;
-import com.example.YogaRestAPI.errors.ActivityTypeNotFoundException;
+import com.example.YogaRestAPI.errors.ActivityType.ActivityTypeNotFoundException;
+import com.example.YogaRestAPI.models.ActivityTypeModel;
 import com.example.YogaRestAPI.service.ActivityTypeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.validation.Valid;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping(path = "/activity-types", produces = "application/json")
+@RequestMapping(path = "/activityTypes", produces = MediaType.APPLICATION_JSON_VALUE)
 @CrossOrigin(origins = "*")
 public class ActivityTypeController {
 
-    final ActivityTypeService activityTypeService;
+    private final ActivityTypeService activityTypeService;
 
     @Autowired
     public ActivityTypeController(ActivityTypeService activityTypeService) {
@@ -27,57 +31,70 @@ public class ActivityTypeController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<ActivityType>> findAll() {
-        List<ActivityType> activityTypesFromDb =  activityTypeService.findAll();
-        CollectionModel<EntityModel<ActivityType>> activityTypes = CollectionModel.wrap(activityTypesFromDb);
-        activityTypes.add(
-                ControllerLinkBuilder
-        );
-        return activityTypes;
+    public ResponseEntity<Object> findAll() {
+        CollectionModel<ActivityTypeModel> activityTypes = new ActivityTypeModelAssembler().toCollectionModel(activityTypeService.findAll());
+        activityTypes.add(linkTo(methodOn(ActivityTypeController.class).findAll()).withRel("activityTypes"));
+        return new ResponseEntity<>(activityTypes, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ActivityType findActivityTypeById(@PathVariable("id") Long id) {
-        return activityTypeService.findById(id).orElseThrow(() -> new ActivityTypeNotFoundException(id));
+    public ResponseEntity<Object> findById(@PathVariable("id") Long id) {
+        ActivityType activityType = activityTypeService.findById(id).orElseThrow(() -> new ActivityTypeNotFoundException(id));
+        ActivityTypeModel activityTypeModel= new ActivityTypeModel(activityType);
+        activityTypeModel.add(linkTo(methodOn(ActivityTypeController.class).findById(id)).withRel("activityType"));
+        return new ResponseEntity<>(activityTypeModel, HttpStatus.OK);
     }
 
     @PostMapping(consumes = "application/json")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ActivityType newActivityType(@RequestBody ActivityType activityType) {
-        return activityTypeService.saveActivityType(activityType);
+    public ResponseEntity<Object> createNew(@Valid @RequestBody ActivityType activityType) {
+        activityTypeService.checkActivityTypeExist(activityType);
+        ActivityTypeModel activityTypeModel =  new ActivityTypeModel(activityTypeService.save(activityType));
+        activityTypeModel.add(linkTo(methodOn(ActivityTypeController.class).findById(activityType.getId())).withRel("activityType"));
+        return new ResponseEntity<>(activityTypeModel, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ActivityType saveOrUpdate(@RequestBody ActivityType newActivityType, @PathVariable Long id) {
-
+    public ResponseEntity saveOrUpdate(@Valid @RequestBody ActivityType newActivityType,
+                                       @PathVariable Long id) {
         return activityTypeService.findById(id)
                 .map(actType -> {
-                    actType.setName(newActivityType.getName());
-                    return activityTypeService.saveActivityType(actType);
+                    BeanUtils.copyProperties(newActivityType, actType);
+                    actType.setId(id);
+                    activityTypeService.update(actType);
+                    activityTypeService.save(actType);
+                    ActivityTypeModel activityTypeModel = new ActivityTypeModel(actType);
+                    activityTypeModel.add(linkTo(methodOn(ActivityTypeController.class)
+                                    .saveOrUpdate(newActivityType,id))
+                                    .withRel("activityType"));
+                    return new ResponseEntity<>(activityTypeModel, HttpStatus.OK);
                 })
                 .orElseGet(() -> {
-                    newActivityType.setAvailable(true);
-                    return activityTypeService.saveActivityType(newActivityType);
+                    activityTypeService.checkActivityTypeExist(newActivityType);
+                    ActivityType activityType = activityTypeService.save(newActivityType);
+                    ActivityTypeModel model = new ActivityTypeModel(activityType);
+                    model.add(linkTo(methodOn(ActivityTypeController.class)
+                            .saveOrUpdate(newActivityType,activityType.getId()))
+                            .withRel("activityType"));
+                    return new ResponseEntity<>(model, HttpStatus.CREATED);
                 });
     }
 
-    @PatchMapping(path = "/{id}", consumes = "application/json")
-    public ActivityType patch(@RequestBody ActivityType patch, @PathVariable Long id) {
+    @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> patch(@Valid @RequestBody ActivityType patch,
+                              @PathVariable Long id) {
         ActivityType activityType = activityTypeService.findById(id).orElseThrow(() -> new ActivityTypeNotFoundException(id));
-        if (patch.getName() != null) {
-            activityType.setName(patch.getName());
-        }
-        if (patch.getAvailable() != null) {
-            activityType.setAvailable(patch.getAvailable());
-        }
-        return activityTypeService.saveActivityType(activityType);
+        patch.setId(id);
+        activityTypeService.update(patch);
+        ActivityTypeModel activityTypeModel = new ActivityTypeModel(
+                activityTypeService.save(activityTypeService.patch(patch, activityType)));
+
+        activityTypeModel.add(linkTo(methodOn(ActivityTypeController.class).patch(activityType, id)).withRel("activityType"));
+        return new ResponseEntity<>(activityTypeModel, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public ResponseEntity<?> deleteActivityType(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteActivityType(@PathVariable Long id) {
         activityTypeService.deleteById(id);
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
-
 }

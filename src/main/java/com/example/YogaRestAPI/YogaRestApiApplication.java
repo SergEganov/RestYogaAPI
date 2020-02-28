@@ -10,4 +10,18 @@ public class YogaRestApiApplication {
 		SpringApplication.run(YogaRestApiApplication.class, args);
 	}
 
+	/*@Bean
+	CommandLineRunner initDatabase(UserRepo repo) {
+        User user = new User();
+        user.setFirstName("First");
+        user.setLastName("Lastname");
+        user.setBirth(LocalDate.now().minusDays(2));
+        user.setPhoneNumber("000");
+        user.setEmail("a@a");
+        userService.save(user);
+
+        return args -> {
+            repo.save(new User());
+        };
+	}*/
 }

@@ -2,7 +2,6 @@ package com.example.YogaRestAPI.service;
 
 import com.example.YogaRestAPI.domain.Account;
 import com.example.YogaRestAPI.domain.Role;
-import com.example.YogaRestAPI.domain.User;
 import com.example.YogaRestAPI.repos.AccountRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,20 +12,23 @@ import java.util.List;
 public class AccountService {
 
     private final AccountRepo accountRepo;
-    private final UserService userService;
 
     @Autowired
-    public AccountService(AccountRepo accountRepo, UserService userService) {
+    public AccountService(AccountRepo accountRepo) {
         this.accountRepo = accountRepo;
-        this.userService = userService;
     }
     public List<Account> findAll() {
         return accountRepo.findAll();
     }
 
-    public void saveAccount(Account account){
+    public Account save(Account account){
         account.getRoles().add(Role.ROLE_USER);
-        accountRepo.save(account);
+        return accountRepo.save(account);
+    }
+
+    public boolean checkAccountExist(Account account) {
+        Account accountFromDb = findByLogin(account.getLogin());
+        return accountFromDb != null;
     }
 
     public void deleteById(Long id) {
@@ -35,5 +37,9 @@ public class AccountService {
 
     public Account findById(Long id){
         return accountRepo.findById(id).orElse(null);
+    }
+
+    public Account findByLogin(String login) {
+        return accountRepo.findByLogin(login);
     }
 }

@@ -1,16 +1,12 @@
 package com.example.YogaRestAPI.domain;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.Objects;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-@Data
 @Entity
 @Table(name = "activity_types")
 public class ActivityType {
@@ -27,4 +23,51 @@ public class ActivityType {
 
     @Column(name = "available")
     private Boolean available;
+
+    public ActivityType() {
+    }
+
+    public ActivityType(String name) {
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ActivityType that = (ActivityType) o;
+        return id.equals(that.id) &&
+                name.equals(that.name) &&
+                Objects.equals(available, that.available);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id, name, available);
+    }
 }
