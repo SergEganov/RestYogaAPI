@@ -6,6 +6,7 @@ import com.example.YogaRestAPI.errors.Activity.ActivityNotFoundException;
 import com.example.YogaRestAPI.errors.ActivityType.ActivityTypeNotFoundException;
 import com.example.YogaRestAPI.models.ActivityModel;
 import com.example.YogaRestAPI.service.ActivityService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class ActivityController {
         this.activityService = activityService;
     }
 
+    @ApiOperation("Получить список занятий")
     @GetMapping
     public ResponseEntity<Object> findAll(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                   @RequestParam(value = "size", defaultValue = "8") Integer size) {
@@ -38,6 +40,7 @@ public class ActivityController {
         return new ResponseEntity<>(activities, HttpStatus.OK);
     }
 
+    @ApiOperation("Найти занятие по id")
     @GetMapping("/{id}")
     public ResponseEntity<Object> findById(@PathVariable("id") Long id) {
         Activity activity = activityService.findById(id).orElseThrow(() -> new ActivityNotFoundException(id));
@@ -46,6 +49,7 @@ public class ActivityController {
         return new ResponseEntity<>(activityModel, HttpStatus.OK);
     }
 
+    @ApiOperation("Создать новое занятие")
     @PostMapping(consumes = "application/json")
     public ResponseEntity<Object> createNew(@RequestBody Activity activity) {
 
@@ -54,6 +58,7 @@ public class ActivityController {
         return new ResponseEntity<>(activityModel, HttpStatus.CREATED);
     }
 
+    @ApiOperation("Обновить занятие или создать новое, если такого нет")
     @PutMapping("/{id}")
     public ResponseEntity saveOrUpdate(@RequestBody Activity activity, @PathVariable Long id) {
         return activityService.findById(id)
@@ -76,6 +81,7 @@ public class ActivityController {
                 });
     }
 
+    @ApiOperation("Обновить занятие")
     @PatchMapping(path = "/{id}", consumes = "application/json")
     public ResponseEntity<Object> patch(@RequestBody Activity patch, @PathVariable Long id) {
         Activity activity = activityService.findById(id).orElseThrow(() -> new ActivityTypeNotFoundException(id));
@@ -84,6 +90,7 @@ public class ActivityController {
         return new ResponseEntity<>(activityModel, HttpStatus.OK);
     }
 
+    @ApiOperation("Удалить занятие")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         activityService.deleteById(id);

@@ -5,6 +5,7 @@ import com.example.YogaRestAPI.domain.User;
 import com.example.YogaRestAPI.errors.User.UserNotFoundException;
 import com.example.YogaRestAPI.models.UserModel;
 import com.example.YogaRestAPI.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @ApiOperation("Получить список всех пользователей")
     @GetMapping
     public CollectionModel<UserModel> findAll(@RequestParam(value = "pageN", defaultValue = "0") Integer page,
                                               @RequestParam(value = "size", defaultValue = "5") Integer size) {
@@ -38,6 +40,7 @@ public class UserController {
         return users;
     }
 
+    @ApiOperation("Получить пользователя по id")
     @GetMapping("/{id}")
     public UserModel findById(@PathVariable("id") Long id) {
         User user = userService.findById(id).orElseThrow(() -> new UserNotFoundException(id));
@@ -46,6 +49,7 @@ public class UserController {
         return userModel;
     }
 
+    @ApiOperation("Создать нового пользователя")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserModel createNew(@RequestBody User user) {
@@ -54,6 +58,7 @@ public class UserController {
         return userModel;
     }
 
+    @ApiOperation("Изменить существующего пользователя или создать нового")
     @PutMapping("/{id}")
     public UserModel saveOrUpdate(@RequestBody User user, @PathVariable Long id) {
         return userService.findById(id)
@@ -77,6 +82,7 @@ public class UserController {
                 });
     }
 
+    @ApiOperation("Изменить параметры пользователя")
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public UserModel patch(@RequestBody User patch, @PathVariable Long id) {
         User user = userService.findById(id).orElseThrow(() -> new UserNotFoundException(id));
@@ -85,6 +91,7 @@ public class UserController {
         return userModel;
     }
 
+    @ApiOperation("Удалить пользователя")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         userService.deleteById(id);

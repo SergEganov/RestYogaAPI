@@ -5,6 +5,7 @@ import com.example.YogaRestAPI.domain.ActivityType;
 import com.example.YogaRestAPI.errors.ActivityType.ActivityTypeNotFoundException;
 import com.example.YogaRestAPI.models.ActivityTypeModel;
 import com.example.YogaRestAPI.service.ActivityTypeService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -30,6 +31,7 @@ public class ActivityTypeController {
         this.activityTypeService = activityTypeService;
     }
 
+    @ApiOperation("Получить все типы занятий")
     @GetMapping
     public ResponseEntity<Object> findAll() {
         CollectionModel<ActivityTypeModel> activityTypes = new ActivityTypeModelAssembler().toCollectionModel(activityTypeService.findAll());
@@ -37,6 +39,7 @@ public class ActivityTypeController {
         return new ResponseEntity<>(activityTypes, HttpStatus.OK);
     }
 
+    @ApiOperation("Получить тип занятия по id")
     @GetMapping("/{id}")
     public ResponseEntity<Object> findById(@PathVariable("id") Long id) {
         ActivityType activityType = activityTypeService.findById(id).orElseThrow(() -> new ActivityTypeNotFoundException(id));
@@ -45,6 +48,7 @@ public class ActivityTypeController {
         return new ResponseEntity<>(activityTypeModel, HttpStatus.OK);
     }
 
+    @ApiOperation("Создать тип занятия")
     @PostMapping(consumes = "application/json")
     public ResponseEntity<Object> createNew(@Valid @RequestBody ActivityType activityType) {
         activityTypeService.checkActivityTypeExist(activityType);
@@ -53,6 +57,7 @@ public class ActivityTypeController {
         return new ResponseEntity<>(activityTypeModel, HttpStatus.CREATED);
     }
 
+    @ApiOperation("Изменить существующий тип занятия или создать новый")
     @PutMapping("/{id}")
     public ResponseEntity saveOrUpdate(@Valid @RequestBody ActivityType newActivityType,
                                        @PathVariable Long id) {
@@ -79,6 +84,7 @@ public class ActivityTypeController {
                 });
     }
 
+    @ApiOperation("Изменить тип занятия")
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> patch(@Valid @RequestBody ActivityType patch,
                               @PathVariable Long id) {
@@ -92,6 +98,7 @@ public class ActivityTypeController {
         return new ResponseEntity<>(activityTypeModel, HttpStatus.OK);
     }
 
+    @ApiOperation("Удалить тип занятия")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteActivityType(@PathVariable Long id) {
         activityTypeService.deleteById(id);

@@ -6,6 +6,7 @@ import com.example.YogaRestAPI.errors.Lounge.LoungeNotFoundException;
 import com.example.YogaRestAPI.models.LoungeLightModel;
 import com.example.YogaRestAPI.models.LoungeModel;
 import com.example.YogaRestAPI.service.LoungeService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ public class LoungeController {
         this.loungeService = loungeService;
     }
 
+    @ApiOperation("Получить список всех помещений")
     @GetMapping
     public ResponseEntity<Object> findAll(@RequestParam(value = "pageN", defaultValue = "0") Integer page,
                                                 @RequestParam(value = "size", defaultValue = "5") Integer size) {
@@ -45,6 +47,7 @@ public class LoungeController {
         return new ResponseEntity<>(lounges,HttpStatus.OK);
     }
 
+    @ApiOperation("Получить помещение по id")
     @GetMapping("/{id}")
     public ResponseEntity<Object> findById(@PathVariable("id") Long id) {
         Lounge lounge = loungeService.findById(id).orElseThrow(() -> new LoungeNotFoundException(id));
@@ -53,6 +56,7 @@ public class LoungeController {
         return new ResponseEntity<>(loungeModel, HttpStatus.OK);
     }
 
+    @ApiOperation("Создать новое помещение")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> createNew(@RequestBody Lounge lounge) {
         loungeService.checkLoungeExist(lounge);
@@ -61,6 +65,7 @@ public class LoungeController {
         return new ResponseEntity<>(lounge, HttpStatus.CREATED);
     }
 
+    @ApiOperation("Обновить существующее помещение или создать новое, если такого нет")
     @PutMapping("/{id}")
     public ResponseEntity saveOrUpdate(@RequestBody Lounge lounge, @PathVariable Long id) {
         return loungeService.findById(id)
@@ -85,6 +90,7 @@ public class LoungeController {
                 });
     }
 
+    @ApiOperation("Обновить параметры помещения")
     @PatchMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> patch(@RequestBody Lounge patch, @PathVariable Long id) {
         Lounge lounge = loungeService.findById(id).orElseThrow(() -> new LoungeNotFoundException(id));
@@ -95,6 +101,7 @@ public class LoungeController {
         return new ResponseEntity<>(loungeModel, HttpStatus.OK);
     }
 
+    @ApiOperation("Удалить помещение")
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         loungeService.deleteById(id);

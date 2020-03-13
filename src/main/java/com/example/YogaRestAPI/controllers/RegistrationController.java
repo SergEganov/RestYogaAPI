@@ -3,6 +3,7 @@ package com.example.YogaRestAPI.controllers;
 import com.example.YogaRestAPI.domain.User;
 import com.example.YogaRestAPI.models.UserModel;
 import com.example.YogaRestAPI.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class RegistrationController {
         this.userService = userService;
     }
 
+    @ApiOperation("Создать нового пользователя")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserModel createNew(@RequestBody User user) {
