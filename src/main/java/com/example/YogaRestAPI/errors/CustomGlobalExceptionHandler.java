@@ -1,9 +1,12 @@
 package com.example.YogaRestAPI.errors;
 
+import com.example.YogaRestAPI.errors.Account.AccountNotFoundException;
 import com.example.YogaRestAPI.errors.Activity.ActivityNotFoundException;
 import com.example.YogaRestAPI.errors.ActivityType.ActivityTypeExistsException;
 import com.example.YogaRestAPI.errors.ActivityType.ActivityTypeNotFoundException;
+import com.example.YogaRestAPI.errors.Lounge.LoungeExistsException;
 import com.example.YogaRestAPI.errors.Lounge.LoungeNotFoundException;
+import com.example.YogaRestAPI.errors.User.UserExistsException;
 import com.example.YogaRestAPI.errors.User.UserNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,14 +37,14 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
         response.sendError(HttpStatus.NOT_FOUND.value());
     }
 
-    @ExceptionHandler(ActivityTypeNotFoundException.class)
+    @ExceptionHandler({ActivityTypeNotFoundException.class, ActivityNotFoundException.class, LoungeNotFoundException.class, UserNotFoundException.class, AccountNotFoundException.class})
     protected ResponseEntity<Object> entityNotFound(RuntimeException ex){
         Map<String, Object> body = getResponseBody(ex);
         body.put("status", HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ActivityTypeExistsException.class)
+    @ExceptionHandler({ActivityTypeExistsException.class, LoungeExistsException.class, UserExistsException.class})
     protected ResponseEntity<Object> entityExists(RuntimeException ex) {
         Map<String, Object> body = getResponseBody(ex);
         body.put("status", HttpStatus.BAD_REQUEST.value());

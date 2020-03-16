@@ -134,7 +134,7 @@ public class ActivityService {
 
         List<Activity> activities = findByLoungeAndDateOfActivityOrderByStartTimeAsc(activity.getLounge(), activity.getDateOfActivity());
         if (activity.getId() != null) {
-            //если идет операция update - выталкиваем текущую дату из списка проверок
+            //если идет операция checkForUpdate - выталкиваем текущую дату из списка проверок
             Activity activityFromDb = findById(activity.getId()).get();
             activities.remove(activityFromDb);
         }

@@ -72,7 +72,7 @@ public class LoungeController {
                 .map(lng -> {
                     BeanUtils.copyProperties(lounge, lng);
                     lng.setId(id);
-                    loungeService.update(lng);
+                    loungeService.checkForUpdate(lng);
                     loungeService.save(lng);
                     LoungeModel loungeModel = new LoungeModel(lng);
                     loungeModel.add(linkTo(methodOn(LoungeController.class)
@@ -95,7 +95,7 @@ public class LoungeController {
     public ResponseEntity<Object> patch(@RequestBody Lounge patch, @PathVariable Long id) {
         Lounge lounge = loungeService.findById(id).orElseThrow(() -> new LoungeNotFoundException(id));
         patch.setId(id);
-        loungeService.update(patch);
+        loungeService.checkForUpdate(patch);
         LoungeModel loungeModel = new LoungeModel(loungeService.save(loungeService.patch(patch, lounge)));
         loungeModel.add(linkTo(methodOn(LoungeController.class).patch(patch, id)).withRel("lounge"));
         return new ResponseEntity<>(loungeModel, HttpStatus.OK);

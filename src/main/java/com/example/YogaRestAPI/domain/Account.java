@@ -3,25 +3,23 @@ package com.example.YogaRestAPI.domain;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-@Data
 @Entity
 @Table(name = "accounts")
-public class Account {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "account_id")
-    private Long id;
+@Data
+public class Account extends BaseEntity implements UserDetails {
 
     @NotBlank(message = "Login can't be empty! Use your email")
     @Email(message = "Check email form to: Test@test.com")
@@ -50,4 +48,34 @@ public class Account {
     @CollectionTable(name = "account_role", joinColumns = @JoinColumn(name = "account_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles();
+    }
+
+    @Override
+    public String getUsername() {
+        return login;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

@@ -50,7 +50,7 @@ public class LoungeService {
         }
     }
 
-    public void update(Lounge lounge) {
+    public void checkForUpdate(Lounge lounge) {
         Lounge loungeFromDb = loungeRepo.findByName(lounge.getName());
         if (loungeFromDb != null && (!loungeFromDb.getId().equals(lounge.getId()))) {
             throw new LoungeExistsException(lounge.getName());

@@ -58,6 +58,18 @@ public class ActivityController {
         return new ResponseEntity<>(activityModel, HttpStatus.CREATED);
     }
 
+    @ApiOperation("Записаться на занятие новое занятие")
+    @PostMapping(value = "/{id}")
+    public ResponseEntity<Object> signUp(@PathVariable("id") Long id) {
+        /*Optional<Activity> activityFromDb = activityService.findById(id);
+        if (activityFromDb.isPresent()) {
+            ActivityModel activityModel = new ActivityModel(activityFromDb.get());
+        } else {
+            throw new ActivityNotFoundException(id);
+        }*/
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
     @ApiOperation("Обновить занятие или создать новое, если такого нет")
     @PutMapping("/{id}")
     public ResponseEntity saveOrUpdate(@RequestBody Activity activity, @PathVariable Long id) {

@@ -19,12 +19,7 @@ import java.util.Set;
 @Data
 @Entity
 @Table(name = "activities")
-public class Activity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "activity_id")
-    private Long id;
+public class Activity extends BaseEntity{
 
     @Pattern(message = "Enter activity name in format: Aengara",
             regexp = "^[A-ZА-Я][a-zа-я]*")

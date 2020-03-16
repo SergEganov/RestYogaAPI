@@ -6,8 +6,5 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepo extends JpaRepository<User, Long> {
     User findByEmail(String email);
-
-    @Query(value = "SELECT EXISTS (SELECT NULL FROM usrs)", nativeQuery = true)
-    boolean isUsersExists();
 }
 
