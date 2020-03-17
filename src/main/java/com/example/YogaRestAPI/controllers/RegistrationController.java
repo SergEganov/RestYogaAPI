@@ -36,8 +36,7 @@ public class RegistrationController {
         if (userService.checkUserExist(user)) {
             throw new UserExistsException(user.getEmail());
         }
-
-        UserModel userModel = new UserModel(userService.save(user));
+        UserModel userModel = new UserModel(accountService.registration(user));
         userModel.add(linkTo(methodOn(UserController.class).findById(user.getId())).withRel("user"));
         return new ResponseEntity<>(userModel,HttpStatus.CREATED);
     }

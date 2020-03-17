@@ -3,6 +3,7 @@ package com.example.YogaRestAPI.service;
 import com.example.YogaRestAPI.domain.Activity;
 import com.example.YogaRestAPI.domain.Lounge;
 import com.example.YogaRestAPI.domain.User;
+import com.example.YogaRestAPI.errors.User.UserAlreadySigned;
 import com.example.YogaRestAPI.repos.ActivityRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -92,16 +93,19 @@ public class ActivityService {
         return activityRepo.findByLoungeAndDateOfActivityOrderByStartTimeAsc(lounge, dateOfActivity);
     }
 
-    public boolean checkTimeForSignUp(Activity activity) {
+    public void checkForSignUp(Activity activity, User user) {
+        User userFromDb = userService.findByEmail(user.getEmail());
+        if (activity.getUsers().contains(userFromDb)) {
+            throw new UserAlreadySigned(user.getEmail());
+        }
         LocalDateTime todayDateTime = LocalDateTime.now();
         LocalDateTime activityDateTime = activity.getStartDateTime();
-        if (activityDateTime.plusMinutes(30).isBefore(todayDateTime) ) {
-            return false;
+        if (todayDateTime.plusMinutes(30).isAfter(activityDateTime) ) {
+            throw new RuntimeException("Registration for the event is finished!");
         }
         if (activity.getUsers().size() >= activity.getCapacity()) {
-            return false;
+           throw new RuntimeException("Have no place, sorry.");
         }
-        return true;
     }
 
     public void signUpToActivity(Activity activity, User user) {
@@ -115,10 +119,12 @@ public class ActivityService {
        save(activity);
     }
 
-    public void signOutFromActivity(Long activity_id, Long user_id) {
-        Activity activity = findById(activity_id).get();
-        activity.getUsers().remove(userService.findById(user_id).get());
-        save(activity);
+    public void signOutFromActivity(Activity activity, Long userId) {
+        Optional<User> user = userService.findById(userId);
+        if (user.isPresent()) {
+            activity.getUsers().remove(user.get());
+            save(activity);
+        }
     }
 
     public boolean checkLegalActivityTime(Activity activity, BindingResult bindingResult){

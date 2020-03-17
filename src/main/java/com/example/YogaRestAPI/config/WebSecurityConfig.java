@@ -35,21 +35,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/activity-types/**", "/lounges/**" ,
+                    .antMatchers("/activity-types/**", "/lounges/**" ,
                         "/users/**", "/activities/create-activity/**",
                         "/activities/delete-activity/**", "/activities/update-activity/**",
                         "/activities/registered-users/**", "/activities/delete-user-from-activity/**")
-                .hasRole("ADMIN")
-                .antMatchers("/", "/registration", "/activities", "/activities/sign-up/**").permitAll()
-                .anyRequest().authenticated()
+                    .hasRole("ADMIN")
+                    .antMatchers("/", "/registration", "/activities", "/activities/sign-up/**").permitAll()
+                    .anyRequest().authenticated()
                 .and()
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/")
-                .permitAll()
+                    .formLogin()
+                    .loginPage("/login")
+                    .defaultSuccessUrl("/")
+                    .permitAll()
                 .and()
-                .logout()
-                .permitAll()
-                .logoutSuccessUrl("/");
+                    .logout()
+                    .permitAll()
+                    .logoutSuccessUrl("/");
     }
 }

@@ -1,12 +1,7 @@
 package com.example.YogaRestAPI.service;
 
-import com.example.YogaRestAPI.domain.Account;
-import com.example.YogaRestAPI.domain.Activity;
 import com.example.YogaRestAPI.domain.Role;
 import com.example.YogaRestAPI.domain.User;
-import com.example.YogaRestAPI.errors.Account.AccountAlreadyExistsException;
-import com.example.YogaRestAPI.errors.User.UserAlreadyRegistredException;
-import com.example.YogaRestAPI.errors.User.UserAlreadySigned;
 import com.example.YogaRestAPI.errors.User.UserExistsException;
 import com.example.YogaRestAPI.repos.UserRepo;
 import org.springframework.data.domain.Page;
@@ -90,13 +85,6 @@ public class UserService {
         User userFromDb = userRepo.findByEmail(user.getEmail());
         if (userFromDb != null && (!userFromDb.getId().equals(user.getId()))) {
            throw new UserExistsException(user.getEmail());
-        }
-    }
-
-    public void checkUserAlreadySigned(User user, Activity activity) {
-        User userFromDb = userRepo.findByEmail(user.getEmail());
-        if (activity.getUsers().contains(userFromDb)) {
-            throw new UserAlreadySigned(user.getEmail());
         }
     }
 }
